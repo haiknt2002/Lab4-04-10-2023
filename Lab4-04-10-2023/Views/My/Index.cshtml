@@ -1,0 +1,24 @@
+﻿﻿@model List<Course>
+<div class="contianer">
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>CourseID</th>
+                <th>Title</th>
+                <th>Credits</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (Course course in Model)
+            {
+                <tr>
+
+                    <td>@course.CourseID</td>
+                    <td>@course.Title</td>
+                    <Td>@course.Credits</Td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
