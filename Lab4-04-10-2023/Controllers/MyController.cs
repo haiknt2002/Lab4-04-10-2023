@@ -1,22 +1,21 @@
 ﻿using Lab4_04_10_2023.Data;
 using Lab4_04_10_2023.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lab4_04_10_2023.Controllers
 {
     public class MyController : Controller
     {
-        private readonly SchoolContext _schoolContext;
-
-        public MyController(SchoolContext schoolContext)
+        private SchoolContext db;
+        public MyController(SchoolContext context)
         {
-            _schoolContext = schoolContext;
+            db = context;
         }
-
         public IActionResult Index()
         {
-            List<Course> courses = _schoolContext.Courses.ToList();
-            return View(courses);
+            var learners = db.Learners.Include(m => m.Major).ToList();
+            return View(learners);
         }
     }
 }
