@@ -28,9 +28,9 @@ namespace Lab4_04_10_2023.Data
                 context.SaveChanges();
                 var learners = new Learner[] 
                 {
-                    new Learner {LearnerID = 1, FirstMidName = "Carson", LastName = "Alexander",
+                    new Learner { FirstMidName = "Carson", LastName = "Alexander",
                     EnrollmentDate = DateTime.Parse("2005-09-01") , MajorID = 1},
-                    new Learner {LearnerID = 2, FirstMidName = "Meredith", LastName = "Alonso",
+                    new Learner { FirstMidName = "Meredith", LastName = "Alonso",
                     EnrollmentDate = DateTime.Parse("2002-09-01"), MajorID = 2 }
                 };
                 foreach (Learner l in learners)

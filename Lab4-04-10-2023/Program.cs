@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Đăng ký SchoolContext là một DbContext của ứng dụng
 builder.Services.AddDbContext<SchoolContext>(options => options
-.UseSqlServer(builder.Configuration.GetConnectionString("SchoolData")));
+.UseSqlServer(builder.Configuration.GetConnectionString("Student")));
 
 
 // Add services to the container.
@@ -14,11 +14,11 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    DbInitializer.Initialize(services);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    DbInitializer.Initialize(services);
+//}
 
 
 // Configure the HTTP request pipeline.
