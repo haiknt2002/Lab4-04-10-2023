@@ -13,23 +13,30 @@ namespace Lab4_04_10_2023.Controllers
         {
             db = context;
         }
-        public IActionResult Index()
+        //public IActionResult Index()
+        //{
+        //    var learners = db.Learners.Include(m => m.Major).ToList();
+        //    return View(learners);
+        //}
+
+        public IActionResult Index(int? mid)
         {
-            var learners = db.Learners.Include(m => m.Major).ToList();
-            return View(learners);
+            if(mid == null)
+            {
+                var learner = db.Learners
+                        .Include(m => m.Major).ToList();
+                return View(learner);
+            }
+            else
+            {
+                var learner = db.Learners
+                        .Where(l => l.MajorID == mid)
+                        .Include(m => m.Major).ToList();
+                return View(learner);
+            }
         }
         public IActionResult Create()
         {
-            //var majors = new List<SelectListItem>();   //cach 1
-            //foreach(var item in db.Majors)
-            //{
-            //    majors.Add(new SelectListItem
-            //    {
-            //        Text = item.MajorName,
-            //        Value = item.MajorID.ToString(),
-            //    });
-            //}
-            //ViewBag.MajorID = majors;
             ViewBag.MajorID = new SelectList(db.Majors, "MajorID", "MajorName");  //cach2
             return View();
         }
@@ -135,6 +142,13 @@ namespace Lab4_04_10_2023.Controllers
             }
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+        public IActionResult LearnerByMajorID(int mid)
+        {
+            var learner = db.Learners
+                .Where(l =>  l.MajorID == mid)
+                .Include(m => m.Major).ToList();
+            return PartialView("LearnerTable", learner);
         }
     }
 }
