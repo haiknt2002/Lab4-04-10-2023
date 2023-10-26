@@ -18,21 +18,25 @@ namespace Lab4_04_10_2023.Controllers
         //    var learners = db.Learners.Include(m => m.Major).ToList();
         //    return View(learners);
         //}
-
+        public IActionResult LearnerByPage(int page)
+        {
+            int limit = 4;
+            var learners = db.Learners.Include(m => m.Major).Skip((page - 1) * limit).Take(limit).ToList();
+            return PartialView("LearnerTable", learners);
+        }
         public IActionResult Index(int? mid)
         {
-            if(mid == null)
+            int limit = 4;
+            int page = 1;
+            if (mid == null)
             {
-                var learner = db.Learners
-                        .Include(m => m.Major).ToList();
-                return View(learner);
+                var learners = db.Learners.Include(m => m.Major).Skip((page - 1) * limit).Take(limit).ToList();
+                return View(learners);
             }
             else
             {
-                var learner = db.Learners
-                        .Where(l => l.MajorID == mid)
-                        .Include(m => m.Major).ToList();
-                return View(learner);
+                var learners = db.Learners.Where(l => l.MajorID == mid).Include(m => m.Major).Skip((page - 1) * limit).Take(limit).ToList();
+                return View(learners);
             }
         }
         public IActionResult Create()
@@ -45,7 +49,7 @@ namespace Lab4_04_10_2023.Controllers
         public IActionResult Create([Bind("FirstMidName,LastName,MajorID,EnrollmentDate")]
             Learner learner)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 db.Learners.Add(learner);
                 db.SaveChanges();
@@ -56,36 +60,36 @@ namespace Lab4_04_10_2023.Controllers
         }
         public IActionResult Edit(int id)
         {
-            if(id == null || db.Learners == null)
+            if (id == null || db.Learners == null)
             {
                 return NotFound();
             }
 
             var learner = db.Learners.Find(id);
-            if(learner == null)
+            if (learner == null)
             {
                 return NotFound();
             }
-            ViewBag.MajorID = new SelectList(db.Majors, "MajorID", "MajorName",learner.MajorID);
+            ViewBag.MajorID = new SelectList(db.Majors, "MajorID", "MajorName", learner.MajorID);
             return View(learner);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id,
-            [Bind("LearnerID,FirstMidName,LastName,MajorID,EnrollmentDate")]Learner learner)
+            [Bind("LearnerID,FirstMidName,LastName,MajorID,EnrollmentDate")] Learner learner)
         {
-            if(id != learner.LearnerID)
+            if (id != learner.LearnerID)
             {
                 return NotFound(id);
             }
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 try
                 {
                     db.Update(learner);
                     db.SaveChanges();
                 }
-                catch(DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException)
                 {
                     if (!LearnerExists(learner.LearnerID))
                     {
@@ -103,7 +107,7 @@ namespace Lab4_04_10_2023.Controllers
         }
         private bool LearnerExists(int id)
         {
-            return (db.Learners?.Any(e =>  e.LearnerID == id)).GetValueOrDefault();
+            return (db.Learners?.Any(e => e.LearnerID == id)).GetValueOrDefault();
         }
         public IActionResult Delete(int id)
         {
@@ -146,7 +150,7 @@ namespace Lab4_04_10_2023.Controllers
         public IActionResult LearnerByMajorID(int mid)
         {
             var learner = db.Learners
-                .Where(l =>  l.MajorID == mid)
+                .Where(l => l.MajorID == mid)
                 .Include(m => m.Major).ToList();
             return PartialView("LearnerTable", learner);
         }

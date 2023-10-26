@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 @model IEnumerable<Learner>
 <div class="ms-2 mx-2">
     <h1>Learner List</h1>
@@ -30,22 +30,64 @@
             </tbody>
         </table>
     </div>
+    <!-- Pagination -->
+    <ul class="pagination">
+        <li class="page-previous">
+            <a class="page-link previous">Previous</a>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-next">
+            <a class="page-link next" href="#">Next</a>
+        </li>
+    </ul>
     <a asp-action="Create" class="btn btn-primary">Create New Student</a>
 </div>
 
-@section Scripts{
+
+@section Scripts {
     <script>
-        $("li").click(function(e){
+        $("li").click(function (e) {
             var id = $(this).attr("id");
-            $.ajax(
-                {
-                    url:"LearnerByMajorID",
-                    data:{mid : id},
-                    success : function(response){
-                        $("div#content").html(response);
-                    }
+            //alert(id)
+            $.ajax({
+                url: "LearnerByMajorID",
+                data: { mid: id },
+                success: function (response) {
+                    $("div#content").html(response)
                 }
-            );
+            });
         });
+
+        var currentPage = 1; // Trang hiện tại
+
+        $(".next").click(function (e) {
+            e.preventDefault();
+            currentPage++;
+            $.ajax({
+                url: "/My/LearnerByPage",
+                data: { page: currentPage },
+                success: function (response) {
+                    $("div#content").html(response)
+                },
+            });
+        });
+        $(".previous").click(function (e) {
+            e.preventDefault();
+            currentPage--;
+            $.ajax({
+                url: "/My/LearnerByPage",
+                data: { page: currentPage },
+                success: function (response) {
+                    $("div#content").html(response)
+                },
+            });
+        });
+        $(".page-item a.page-link").data("page", function () {
+            return $(this).text(); // Sử dụng giá trị văn bản bên trong thẻ <a> làm giá trị "data-page"
+        });
+        var pageValue = $(".page-item").data("page");
+        console.log("Giá trị của data-page là: " + pageValue);
     </script>
 }
