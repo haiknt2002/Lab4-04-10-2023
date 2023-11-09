@@ -3,6 +3,15 @@
 <div class="ms-2 mx-2">
     <h1>Learner List</h1>
     @await Component.InvokeAsync("Major")
+    <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+        <div class="input-group">
+            <input id="keyword" class="form-control" name="keyword"
+                    type="text" placeholder="Search Learner"/>
+            <button id="btnSearch" class="btn btn-primary" type="button">
+                <i class="fas fa-search">Search</i>
+            </button>
+        </div>
+    </form>
     <div id="content">
         <table class="table table-striped">
             <thead>
@@ -29,65 +38,65 @@
                 }
             </tbody>
         </table>
+        <!-- Pagination -->
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.pageNum; i++)
+            {
+                <li class="page-item" page="@i"
+                @(ViewBag.mid != null ? "mid='ViewBag.mid'" : "")
+                @(ViewBag.keyword != null ? "keyword='@ViewBag.keyword'" : "")>
+                    <a class="page-link">@i</a>
+                </li>
+            }
+        </ul>
     </div>
-    <!-- Pagination -->
-    <ul class="pagination">
-        <li class="page-previous">
-            <a class="page-link previous">Previous</a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-next">
-            <a class="page-link next" href="#">Next</a>
-        </li>
-    </ul>
     <a asp-action="Create" class="btn btn-primary">Create New Student</a>
 </div>
 
 
-@section Scripts {
+
+@section Scripts{
     <script>
-        $("li").click(function (e) {
-            var id = $(this).attr("id");
-            //alert(id)
-            $.ajax({
-                url: "LearnerByMajorID",
-                data: { mid: id },
-                success: function (response) {
-                    $("div#content").html(response)
+        $('body').on('click', 'li.page-item', function(e){
+            var page = $(this).attr("page");
+            var mid = $(this).attr("mid");
+            var keyword = $(this).attr("keyword");
+            var data = {mid : mid, keyword : keyword, pageIndex : page};
+            $.ajax(
+            {
+                url: "LearnerFilter",
+                data : data,
+                success: function(response)
+                {
+                    $("div#content").html(response);
                 }
             });
         });
-
-        var currentPage = 1; // Trang hiện tại
-
-        $(".next").click(function (e) {
-            e.preventDefault();
-            currentPage++;
-            $.ajax({
-                url: "/My/LearnerByPage",
-                data: { page: currentPage },
-                success: function (response) {
-                    $("div#content").html(response)
-                },
+        $(".nav li").click(function (e) {
+            var id = $(this).attr("id");
+            var data = { mid: id};
+            $.ajax(
+            {
+                url: "LearnerFilter",
+                data: data,
+                success: function (response)
+                {
+                    $("div#content").html(response);
+                }
             });
         });
-        $(".previous").click(function (e) {
-            e.preventDefault();
-            currentPage--;
-            $.ajax({
-                url: "/My/LearnerByPage",
-                data: { page: currentPage },
-                success: function (response) {
-                    $("div#content").html(response)
-                },
+        $("button#btnSearch").click( function (e) {
+            var keyword = $(this).attr("#keyword").val();
+            var data = { keyword : keyword };
+            $.ajax(
+            {
+                url: "LearnerFilter",
+                data: data,
+                success: function (response)
+                {
+                    $("div#content").html(response);
+                }
             });
         });
-        $(".page-item a.page-link").data("page", function () {
-            return $(this).text(); // Sử dụng giá trị văn bản bên trong thẻ <a> làm giá trị "data-page"
-        });
-        var pageValue = $(".page-item").data("page");
-        console.log("Giá trị của data-page là: " + pageValue);
     </script>
 }

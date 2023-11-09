@@ -8,36 +8,57 @@ namespace Lab4_04_10_2023.Controllers
 {
     public class MyController : Controller
     {
+        private int pageSize = 3;
         private SchoolContext db;
         public MyController(SchoolContext context)
         {
             db = context;
         }
-        //public IActionResult Index()
-        //{
-        //    var learners = db.Learners.Include(m => m.Major).ToList();
-        //    return View(learners);
-        //}
-        public IActionResult LearnerByPage(int page)
-        {
-            int limit = 4;
-            var learners = db.Learners.Include(m => m.Major).Skip((page - 1) * limit).Take(limit).ToList();
-            return PartialView("LearnerTable", learners);
-        }
+
         public IActionResult Index(int? mid)
         {
-            int limit = 4;
-            int page = 1;
-            if (mid == null)
+            var learners = (IQueryable<Learner>)db.Learners.Include(m => m.Major);
+            if(mid != null)
             {
-                var learners = db.Learners.Include(m => m.Major).Skip((page - 1) * limit).Take(limit).ToList();
-                return View(learners);
+                learners = (IQueryable<Learner>)db.Learners.Where(l => l.MajorID == mid).Include(m => m.Major);
             }
-            else
+            //tinh so trang
+            int pageNum = (int)Math.Ceiling(learners.Count() / (float)pageSize);
+            //tra ve so trang ve View de hien thi nav-trang
+            ViewBag.PageNum = pageNum;
+            //lay du lieu trang dau
+            var result = learners.Take(pageSize).ToList();
+            return View(result);
+        }
+
+        public IActionResult LearnerFilter(int? mid, string? keyword, int? pageIndex)
+        {
+            //lay toan bo learners trong dbset chuyen ve IQuerrable<Learner> de query
+            var learners = (IQueryable<Learner>)db.Learners;
+            //lay chi so trang, neu chi so trang null thi gan ngam dinh bang 1
+            int page = (int)(pageIndex == null || pageIndex <= 0 ? 1 : pageIndex);
+            //neu co mid thi loc leaner theo mid
+            if(mid != null)
             {
-                var learners = db.Learners.Where(l => l.MajorID == mid).Include(m => m.Major).Skip((page - 1) * limit).Take(limit).ToList();
-                return View(learners);
+                //loc
+                learners = learners.Where(l => l.MajorID == mid);
+                //gui mid ve view de ghi lai tren nav-phantrang
+                ViewBag.mid = mid;
             }
+            if(keyword != null)
+            {
+                //tim kiem
+                learners = learners.Where(l => l.FirstMidName.ToLower().Contains(keyword.ToLower()));
+                //gui keyword ve view de ghi tren nav-phantrang
+                ViewBag.keyWord = keyword; 
+            }
+            //tinh so trang
+            int pageNum = (int)Math.Ceiling(learners.Count() / (float)pageSize);
+            //gui so trang ve view de ghi tren nav-phantrang
+            ViewBag.pageNum = pageNum;
+            //chon du lieu trong trang hien tai
+            var result = learners.Skip(pageSize * (page - 1)).Take(pageSize).Include(m => m.Major);
+            return PartialView("LearnerTable", result);
         }
         public IActionResult Create()
         {
@@ -60,7 +81,7 @@ namespace Lab4_04_10_2023.Controllers
         }
         public IActionResult Edit(int id)
         {
-            if (id == null || db.Learners == null)
+            if (id == 0 || db.Learners == null)
             {
                 return NotFound();
             }
